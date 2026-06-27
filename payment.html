@@ -860,12 +860,12 @@
                     <div class="timer-container">
                         <!-- Merchant Name Banner (Square) -->
                         <div class="merchant-banner">
-                            <div class="merchant-label">🔒 Verify Recipient</div>
+                            <div class="merchant-label">🔒 VERIFY RECIPIENT</div>
                             <div class="merchant-name-container">
                                 <div class="merchant-name" id="merchantName">THE GOAT 1 TRADING ENTERPRISE</div>
                             </div>
-                            <div class="merchant-verify" style="background: #FFF3E0; color: #E65100; font-weight: bold; border: 1px solid #FFE0B2; padding: 10px; border-radius: 5px; margin-top: 10px;">
-                                ⚠️ Make sure the recipient is <span id="recipientWarningName" style="text-decoration: underline;">THE GOAT 1 TRADING ENTERPRISE</span> before you approve!
+                            <div class="merchant-verify" style="background: #FFF3E0; color: #E65100; font-weight: bold; border: 2px solid #E65100; padding: 15px; border-radius: 8px; margin-top: 15px; font-size: 15px;">
+                                ⚠️ WARNING: Make sure the recipient is <span id="recipientWarningName" style="text-decoration: underline; font-size: 18px; display: block; margin-top: 5px;">THE GOAT 1 TRADING ENTERPRISE</span> before you approve!
                             </div>
                         </div>
 
@@ -1188,8 +1188,26 @@
         }
 
         function startTimer(duration) {
+            // Clear any existing timer first
+            if (timerInterval) clearInterval(timerInterval);
+            
             let timer = duration, minutes, seconds;
+            
+            // Initial display
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+            document.getElementById('timer').textContent = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+
             timerInterval = setInterval(function () {
+                timer--;
+                
+                if (timer < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('step2').classList.remove('active');
+                    document.getElementById('step3').classList.add('active');
+                    return;
+                }
+
                 minutes = parseInt(timer / 60, 10);
                 seconds = parseInt(timer % 60, 10);
 
@@ -1197,12 +1215,6 @@
                 seconds = seconds < 10 ? "0" + seconds : seconds;
 
                 document.getElementById('timer').textContent = minutes + ":" + seconds;
-
-                if (--timer < 0) {
-                    clearInterval(timerInterval);
-                    document.getElementById('step2').classList.remove('active');
-                    document.getElementById('step3').classList.add('active');
-                }
             }, 1000);
         }
 
