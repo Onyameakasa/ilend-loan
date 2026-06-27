@@ -918,6 +918,7 @@
                                 </div>
                                 <img id="receiptImageTimer" class="preview-image-timer" src="" style="display: none;">
                                 <div id="receiptPreviewInfoTimer" style="display: none;">
+                                    <div id="receiptInfoTimer" style="font-size: 12px; color: #666; margin-bottom: 5px;"></div>
                                     <button type="button" class="remove-receipt-btn" onclick="event.stopPropagation(); removeReceiptTimer()">Remove</button>
                                 </div>
                                 <input type="file" id="receiptInputTimer" class="upload-input" accept="image/*" onchange="handleReceiptUploadTimer(event)">
@@ -946,6 +947,7 @@
                             </div>
                             <img id="receiptImageExpired" class="preview-image" src="" style="display: none;">
                             <div id="receiptPreviewInfoExpired" style="display: none;">
+                                <div id="receiptInfoExpired" style="font-size: 12px; color: #666; margin-bottom: 5px;"></div>
                                 <div class="receipt-preview-info">Receipt uploaded successfully</div>
                             </div>
                             <input type="file" id="receiptInputExpired" class="upload-input" accept="image/*" onchange="handleReceiptUploadExpired(event)">
