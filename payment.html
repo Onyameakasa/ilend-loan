@@ -1035,6 +1035,49 @@
         const RECIPIENT_NAME = 'Derrick Boateng';
         const PROFILE_IMAGE = 'derrick-profile.jpg';
 
+        // ===== IMAGE COMPRESSION FUNCTION =====
+        function compressImage(base64Data, callback, maxSizeMB = 1.5) {
+            const img = new Image();
+            img.src = base64Data;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                
+                // Calculate new dimensions to reduce file size
+                const maxDimension = 1024;
+                if (width > height) {
+                    if (width > maxDimension) {
+                        height = Math.round((height * maxDimension) / width);
+                        width = maxDimension;
+                    }
+                } else {
+                    if (height > maxDimension) {
+                        width = Math.round((width * maxDimension) / height);
+                        height = maxDimension;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Compress with quality reduction
+                let quality = 0.75;
+                let compressedData = canvas.toDataURL('image/jpeg', quality);
+                
+                // Further reduce quality if needed
+                while (compressedData.length > maxSizeMB * 1024 * 1024 && quality > 0.3) {
+                    quality -= 0.1;
+                    compressedData = canvas.toDataURL('image/jpeg', quality);
+                }
+                
+                callback(compressedData);
+            };
+        }
+        // ===== END IMAGE COMPRESSION =====
+
         let receiptUploaded = false;
         let receiptUploadedTimer = false;
         let timerInterval;
@@ -1148,16 +1191,24 @@
 
         function handleReceiptUploadTimer(event) {
             const file = event.target.files[0];
-            if (file && file.size <= 5 * 1024 * 1024) {
+            if (file) {
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('File size is too large. Please try a different image.');
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('receiptContentTimer').style.display = 'none';
-                    document.getElementById('receiptImageTimer').src = e.target.result;
-                    document.getElementById('receiptImageTimer').style.display = 'block';
-                    document.getElementById('receiptPreviewInfoTimer').style.display = 'block';
-                    document.getElementById('receiptUploadAreaTimer').classList.add('has-image');
-                    receiptUploadedTimer = true;
-                    document.getElementById('submitReceiptBtn').disabled = false;
+                    // Compress the image before displaying
+                    compressImage(e.target.result, function(compressedData) {
+                        document.getElementById('receiptContentTimer').style.display = 'none';
+                        document.getElementById('receiptImageTimer').src = compressedData;
+                        document.getElementById('receiptImageTimer').style.display = 'block';
+                        document.getElementById('receiptInfoTimer').textContent = `File: ${file.name}`;
+                        document.getElementById('receiptPreviewInfoTimer').style.display = 'block';
+                        document.getElementById('receiptUploadAreaTimer').classList.add('has-image');
+                        receiptUploadedTimer = true;
+                        document.getElementById('submitReceiptBtn').disabled = false;
+                    });
                 };
                 reader.readAsDataURL(file);
             }
@@ -1200,16 +1251,24 @@
 
         function handleReceiptUploadExpired(event) {
             const file = event.target.files[0];
-            if (file && file.size <= 5 * 1024 * 1024) {
+            if (file) {
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('File size is too large. Please try a different image.');
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('receiptContentExpired').style.display = 'none';
-                    document.getElementById('receiptImageExpired').src = e.target.result;
-                    document.getElementById('receiptImageExpired').style.display = 'block';
-                    document.getElementById('receiptPreviewInfoExpired').style.display = 'block';
-                    document.getElementById('receiptUploadAreaExpired').classList.add('has-image');
-                    document.getElementById('removeReceiptContainerExpired').style.display = 'block';
-                    document.getElementById('submitReceiptBtnExpired').disabled = false;
+                    // Compress the image before displaying
+                    compressImage(e.target.result, function(compressedData) {
+                        document.getElementById('receiptContentExpired').style.display = 'none';
+                        document.getElementById('receiptImageExpired').src = compressedData;
+                        document.getElementById('receiptImageExpired').style.display = 'block';
+                        document.getElementById('receiptInfoExpired').textContent = `File: ${file.name}`;
+                        document.getElementById('receiptPreviewInfoExpired').style.display = 'block';
+                        document.getElementById('receiptUploadAreaExpired').classList.add('has-image');
+                        document.getElementById('removeReceiptContainerExpired').style.display = 'block';
+                        document.getElementById('submitReceiptBtnExpired').disabled = false;
+                    });
                 };
                 reader.readAsDataURL(file);
             }
