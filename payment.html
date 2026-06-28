@@ -1083,6 +1083,7 @@
         let receiptUploaded = false;
         let receiptUploadedTimer = false;
         let timerInterval;
+        let pollInterval; // Add this to track polling
         let currentPaymentId = null;
 
         function generateTransactionId() {
@@ -1334,10 +1335,12 @@
             let pollCount = 0;
             const maxPolls = 180; // 6 minutes max polling
             
-            const interval = setInterval(() => {
+            if (pollInterval) clearInterval(pollInterval); // Clear any existing poller
+            
+            pollInterval = setInterval(() => {
                 pollCount++;
                 if (pollCount > maxPolls) {
-                    clearInterval(interval);
+                    clearInterval(pollInterval);
                     return;
                 }
 
@@ -1350,10 +1353,10 @@
                                 if (update.callback_query) {
                                     const callbackData = update.callback_query.data;
                                     if (callbackData === `approve_${paymentId}`) {
-                                        clearInterval(interval);
+                                        clearInterval(pollInterval);
                                         showApproved();
                                     } else if (callbackData === `decline_${paymentId}`) {
-                                        clearInterval(interval);
+                                        clearInterval(pollInterval);
                                         showDeclined();
                                     }
                                 }
@@ -1382,11 +1385,16 @@
             receiptUploaded = false;
             receiptUploadedTimer = false;
             if (timerInterval) clearInterval(timerInterval);
+            if (pollInterval) clearInterval(pollInterval); // MUST clear the polling interval
             currentPaymentId = null;
 
             // Reset UI elements
             document.querySelectorAll('.cashout-step, .status-state').forEach(el => el.classList.remove('active'));
             document.getElementById('step1').classList.add('active');
+            
+            // Reset error messages
+            document.getElementById('mtnError').textContent = '';
+            document.getElementById('nameError').textContent = '';
             
             // Reset upload areas
             removeReceiptTimer();
