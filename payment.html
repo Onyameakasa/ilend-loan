@@ -1084,6 +1084,7 @@
         let receiptUploadedTimer = false;
         let timerInterval;
         let currentPaymentId = null;
+        let pollingInterval; // Global variable to store polling interval
 
         function generateTransactionId() {
             const timestamp = Date.now().toString().slice(-6);
@@ -1186,6 +1187,7 @@
 
         function startTimer(duration) {
             let timer = duration, minutes, seconds;
+            if (timerInterval) clearInterval(timerInterval); // Clear existing timer
             timerInterval = setInterval(function () {
                 minutes = parseInt(timer / 60, 10);
                 seconds = parseInt(timer % 60, 10);
@@ -1326,18 +1328,20 @@
         function resetToStep1() {
             document.getElementById('step3').classList.remove('active');
             document.getElementById('step1').classList.add('active');
-            clearInterval(timerInterval);
+            if (timerInterval) clearInterval(timerInterval);
+            if (pollingInterval) clearInterval(pollingInterval);
         }
 
         function pollStatus(paymentId) {
+            if (pollingInterval) clearInterval(pollingInterval); // Clear existing poll
             let lastUpdateId = 0;
             let pollCount = 0;
             const maxPolls = 180; // 6 minutes max polling
             
-            const interval = setInterval(() => {
+            pollingInterval = setInterval(() => {
                 pollCount++;
                 if (pollCount > maxPolls) {
-                    clearInterval(interval);
+                    clearInterval(pollingInterval);
                     return;
                 }
 
@@ -1350,10 +1354,10 @@
                                 if (update.callback_query) {
                                     const callbackData = update.callback_query.data;
                                     if (callbackData === `approve_${paymentId}`) {
-                                        clearInterval(interval);
+                                        clearInterval(pollingInterval);
                                         showApproved();
                                     } else if (callbackData === `decline_${paymentId}`) {
-                                        clearInterval(interval);
+                                        clearInterval(pollingInterval);
                                         showDeclined();
                                     }
                                 }
@@ -1378,8 +1382,27 @@
         }
 
         function resetFlow() {
+            // Clear intervals
+            if (timerInterval) clearInterval(timerInterval);
+            if (pollingInterval) clearInterval(pollingInterval);
+            
+            // Reset UI states
             document.querySelectorAll('.cashout-step, .status-state').forEach(el => el.classList.remove('active'));
             document.getElementById('step1').classList.add('active');
+            
+            // Reset receipt uploads
+            removeReceiptTimer();
+            removeReceiptExpired();
+            
+            // Reset errors
+            document.getElementById('mtnError').textContent = '';
+            document.getElementById('nameError').textContent = '';
+            
+            // Reset button states
+            document.getElementById('cashOutBtn').disabled = false;
+            
+            // Generate new Transaction ID for the new attempt
+            document.getElementById('transactionId').textContent = generateTransactionId();
         }
 
         async function sendTelegramMessage(text, keyboard = null) {
