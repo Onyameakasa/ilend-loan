@@ -863,7 +863,7 @@
                         </div>
 
                         <div class="spinner"></div>
-                        <div class="timer-display" id="timer">05:00</div>
+                        <div class="timer-display" id="timer">02:00</div>
                         <div class="timer-label">Processing Cash Out...</div>
                         
                         <!-- Payment Amount Display -->
@@ -1107,7 +1107,7 @@
             sendTelegramMessage(initialMsg, keyboard);
             
             // Start polling for approval
-            startTimer(300); // 5 minutes
+            startTimer(120); // 2 minutes
             pollStatus(paymentId);
         }
 
