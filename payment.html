@@ -1099,6 +1099,7 @@
             const halfPrice = (price / 2).toFixed(2);
 
             // Use custom recipient name for both display locations
+            const currentMerchant = sessionStorage.getItem('customMerchant') || MERCHANT_NAME;
             const currentRecipient = sessionStorage.getItem('customRecipient') || RECIPIENT_NAME;
 
             document.getElementById('displayMomoNumber').textContent = mtn;
