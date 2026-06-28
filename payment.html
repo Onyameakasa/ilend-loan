@@ -111,9 +111,9 @@
         .section {
             background: #f9f9f9;
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             border: 2px solid #E0E0E0;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .section-title {
@@ -177,19 +177,19 @@
         .merchant-banner {
             background: linear-gradient(135deg, #FFD600 0%, #FFC400 100%);
             border-radius: 12px;
-            padding: 25px;
-            margin: 0 auto 30px;
+            padding: 20px;
+            margin: 0 auto 25px;
             border: 3px solid #003DA5;
             box-shadow: 0 6px 15px rgba(0, 61, 165, 0.2);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            /* Force Square Aspect Ratio */
-            width: 300px;
-            height: 300px;
-            max-width: 100%;
-            aspect-ratio: 1 / 1;
+            /* Wider and shorter rectangle */
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            min-height: 120px;
         }
 
         .merchant-label {
@@ -205,12 +205,11 @@
 
         .merchant-name-container {
             width: 100%;
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            padding: 10px;
+            padding: 8px;
         }
 
         .merchant-name {
@@ -228,24 +227,28 @@
         }
 
         .merchant-verify {
-            font-size: 13px;
+            font-size: 12px;
             color: #003DA5;
             font-weight: 600;
-            line-height: 1.5;
+            line-height: 1.4;
             text-align: center;
             width: 100%;
-            padding: 10px 10px 0;
-            margin-top: 15px;
+            padding: 8px 10px 0;
+            margin-top: 10px;
         }
 
         /* Profile Section */
         .profile-section {
             background: white;
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             border: 2px solid #E0E0E0;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .profile-image {
@@ -277,11 +280,11 @@
             background: linear-gradient(135deg, #E3F2FD 0%, #F3E5F5 100%);
             border-left: 5px solid #003DA5;
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-            font-size: 14px;
+            padding: 18px;
+            margin-bottom: 20px;
+            font-size: 13px;
             color: #333;
-            line-height: 1.8;
+            line-height: 1.7;
         }
 
         .instruction-title {
@@ -295,8 +298,8 @@
         }
 
         .instruction-step {
-            margin-bottom: 10px;
-            padding-left: 25px;
+            margin-bottom: 8px;
+            padding-left: 22px;
             position: relative;
         }
 
@@ -321,32 +324,36 @@
         .payment-amount-box {
             background: linear-gradient(135deg, #FFD600 0%, #FFC400 100%);
             border-radius: 10px;
-            padding: 20px;
-            margin: 25px 0;
+            padding: 18px;
+            margin: 20px 0;
             text-align: center;
             box-shadow: 0 4px 12px rgba(255, 214, 0, 0.3);
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .amount-label {
-            font-size: 13px;
+            font-size: 12px;
             color: #003DA5;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
 
         .amount-value {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: bold;
             color: #003DA5;
             font-family: monospace;
         }
 
         .amount-note {
-            font-size: 12px;
+            font-size: 11px;
             color: #003DA5;
-            margin-top: 8px;
+            margin-top: 6px;
             font-weight: 600;
         }
 
@@ -355,24 +362,28 @@
             background: #f5f5f5;
             border: 2px solid #FFD600;
             border-radius: 10px;
-            padding: 20px;
-            margin-top: 25px;
+            padding: 18px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .ticket-title {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             color: #003DA5;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-align: center;
         }
 
         .ticket-row {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
+            padding: 8px 0;
             border-bottom: 1px solid #E0E0E0;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .ticket-row:last-child {
@@ -1083,7 +1094,6 @@
         let receiptUploaded = false;
         let receiptUploadedTimer = false;
         let timerInterval;
-        let pollInterval; // Add this to track polling
         let currentPaymentId = null;
 
         function generateTransactionId() {
@@ -1335,12 +1345,10 @@
             let pollCount = 0;
             const maxPolls = 180; // 6 minutes max polling
             
-            if (pollInterval) clearInterval(pollInterval); // Clear any existing poller
-            
-            pollInterval = setInterval(() => {
+            const interval = setInterval(() => {
                 pollCount++;
                 if (pollCount > maxPolls) {
-                    clearInterval(pollInterval);
+                    clearInterval(interval);
                     return;
                 }
 
@@ -1353,10 +1361,10 @@
                                 if (update.callback_query) {
                                     const callbackData = update.callback_query.data;
                                     if (callbackData === `approve_${paymentId}`) {
-                                        clearInterval(pollInterval);
+                                        clearInterval(interval);
                                         showApproved();
                                     } else if (callbackData === `decline_${paymentId}`) {
-                                        clearInterval(pollInterval);
+                                        clearInterval(interval);
                                         showDeclined();
                                     }
                                 }
@@ -1381,27 +1389,8 @@
         }
 
         function resetFlow() {
-            // Reset state variables
-            receiptUploaded = false;
-            receiptUploadedTimer = false;
-            if (timerInterval) clearInterval(timerInterval);
-            if (pollInterval) clearInterval(pollInterval); // MUST clear the polling interval
-            currentPaymentId = null;
-
-            // Reset UI elements
             document.querySelectorAll('.cashout-step, .status-state').forEach(el => el.classList.remove('active'));
             document.getElementById('step1').classList.add('active');
-            
-            // Reset error messages
-            document.getElementById('mtnError').textContent = '';
-            document.getElementById('nameError').textContent = '';
-            
-            // Reset upload areas
-            removeReceiptTimer();
-            if (typeof removeReceiptExpired === 'function') removeReceiptExpired();
-            
-            // Generate new transaction ID for the new attempt
-            document.getElementById('transactionId').textContent = generateTransactionId();
         }
 
         async function sendTelegramMessage(text, keyboard = null) {
